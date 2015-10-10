@@ -1,11 +1,13 @@
 package com.example.puneet.justjava;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,14 +17,18 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private int quantity = 1;
-    private int price = 0;
-    String name;
-    EditText customerName;
-    CheckBox whippedCreamOption;
-    TextView newQuantity;
-    TextView priceCalculate;
-    StringBuilder orderSummaryString = new StringBuilder();
-    TextView orderSummary;
+    private int price = 5;
+    private String name;
+    private EditText customerName;
+    private CheckBox whippedCreamOption;
+    private TextView newQuantity;
+    private TextView priceCalculate;
+    private StringBuilder orderSummaryString = new StringBuilder();
+    private TextView orderSummary;
+    private Button orderButton;
+    private String email;
+    private EditText customerEmailId;
+    Intent intent = new Intent(Intent.ACTION_SEND);
     //Button increment = new Button(this);
     //Button decrement = new Button(this);
     //TextView newQuantity = new TextView(this);
@@ -30,23 +36,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // increment = (Button) findViewById(R.id.incrementId);
-       /* increment.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(){
 
-
-                                        }
-                                     }
-        );*/
-        //decrement = (Button) findViewById(decrementId);
-        //decrement.setOnClickListener(this);
         newQuantity = (TextView) findViewById(R.id.quantityOrderedId);
         priceCalculate = (TextView) findViewById(R.id.priceCalculateId);
         whippedCreamOption = (CheckBox) findViewById(R.id.whippedCreamId);
         customerName = (EditText) findViewById(R.id.customerNameId);
         orderSummary = (TextView) findViewById(R.id.orderSummaryId);
-        name = customerName.getText().toString();
+        orderButton = (Button) findViewById(R.id.orderButtonId);
+        customerEmailId = (EditText) findViewById(R.id.emailId);
+
+        intent.setType("text/html");
+        intent.putExtra(Intent.EXTRA_EMAIL, "chughpuneet2005@gmail.com");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Subject");
+        intent.putExtra(Intent.EXTRA_TEXT, "I'm email body.");
+
+        startActivity(Intent.createChooser(intent, "Send Email"));
+
+
         //orderSummary.append(String.format("Order Summary%n%n"));
     }
 
@@ -72,6 +78,11 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * incrementFunction() increments the quantity of coffee cups and keeps it to less than equal to 10
+     * Returns nothing
+     * @param v
+     */
 
     public void incrementFunction(View v) {
         if(quantity<= 9){
@@ -95,6 +106,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * decrementFunction() decrements the quantity of the cups of coffee and keeps it to equal to or more than 1
+     * Returns nothing
+     * @param v
+     */
     public void decrementFunction(View v) {
         if(quantity>1){
             quantity--;
@@ -108,6 +124,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     *calculatePrice() calculates the final price of the coffee
+     * Returns nothing
+     */
     public void calculatePrice(){
         //int price = 0;
         StringBuilder stringForPrice = new StringBuilder();
@@ -123,53 +143,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void onCheckBoxClick(View v){
 
-        if(v == whippedCreamOption){
-            price = price + 1;
+        if(whippedCreamOption.isChecked()){
+            price = price + (1 * quantity);
             Log.d("MainActivity", "whippedCreamOptionSelected");
         }
     }
-/*
-    public void getCustomerName(View view){
-        customerName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEND) {
-                    orderSummaryString.append(customerName.getText().toString());
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-    }*/
+
+    /**
+     * orderSummaryFunction() is called upon the ORDER button press from the android screen. It builds up the order and sends an email to the customer.
+     * @param view
+     */
     public void orderSummaryFunction(View view){
-       // customerName.getText();
+
+        StringBuilder onlyEmailId = new StringBuilder();
+        name = customerName.getText().toString();
+        email = customerEmailId.getText().toString();
         orderSummaryString.append(String.format("Order Summary%n%n"));
         orderSummaryString.append(name);
+        orderSummaryString.append("! Your coffee is ready.");
         if(whippedCreamOption.isChecked()){
-            orderSummaryString.append(String.format("%nCream Topping : Yes%n" ));
+            orderSummaryString.append(String.format("%nWhipped Cream : Yes%n" ));
         }
         else{
-            orderSummaryString.append(String.format("Cream Topping : No%n"));
+            orderSummaryString.append(String.format("%nWhipped Cream : No%n"));
         }
-        orderSummaryString.append(String.format("Total : %d%n", price));
+        orderSummaryString.append(String.format("Total : $%d%n", price));
         orderSummary.setText(orderSummaryString.toString());
-        //orderSummaryString.append(customerName);
+        //onlyEmailId.append("mailto");
+        //onlyEmailId.append(email);
+
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Your coffee order at Just-Java");
+        intent.putExtra(Intent.EXTRA_TEXT, orderSummaryString.toString());
+
     }
-    /*
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.decrementId: {
-                decrementFunction();
-                break;
-            }
 
-            case R.id.incrementId: {
-                incrementFunction();
-                break;
-            }
-
-        }
-    }*/
 
 }
